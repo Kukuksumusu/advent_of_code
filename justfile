@@ -1,60 +1,52 @@
-run day task *args:
-    @uv run run.py {{day}} {{task}} {{args}}
+set positional-arguments
 
-# Run only test input (e.g., just test-run 7 1)
-test-run day task:
-    @uv run run.py {{day}} {{task}} --test-only
+# List the available commands
+default:
+    @just --list
+
+# Find and verify the Advent of Code session in Chrome
+auth:
+    @uv run --locked --group chrome-auth python aoc.py auth
+
+# Paste an Advent of Code session cookie at a hidden prompt
+auth-manual:
+    @uv run --locked python aoc.py auth --manual
+
+# Install dependencies and restore missing inputs (optionally for one year)
+init *year:
+    @uv run --locked python aoc.py init "$@"
+
+# Prepare a day and select it in the debugger
+start year day:
+    @uv run --locked python aoc.py start "$@"
+
+# Restore the input for one existing day
+fetch year day:
+    @uv run --locked python aoc.py fetch "$@"
+
+# Select Part 1 or 2 of the current day
+part part:
+    @uv run --locked python aoc.py part "$@"
+
+# Run real input for the current selection or an explicit YEAR DAY [PART]
+run *args:
+    @uv run --locked python aoc.py run "$@"
+
+# Run examples for the current selection or an explicit YEAR DAY [PART]
+sample *args:
+    @uv run --locked python aoc.py sample "$@"
 
 fix *args:
-    @uv run ruff check src --fix {{args}}
-    @uv run ruff format src
+    @uv run --locked ruff check aoc.py scripts tests years --fix "$@"
+    @uv run --locked ruff format aoc.py scripts tests years
 
 check:
-    @uv run ruff check src
-    @uv run mypy src --explicit-package-bases
+    @uv run --locked ruff check aoc.py scripts tests years
+    @uv run --locked mypy aoc.py scripts tests --explicit-package-bases
+    @for year in years/[0-9][0-9][0-9][0-9]; do \
+        [ -d "$year" ] || continue; \
+        MYPYPATH="$year" uv run --locked mypy --explicit-package-bases --cache-dir ".mypy_cache/${year##*/}" "$year" || exit; \
+    done
 
-# Create a new day structure (e.g., just create 03)
-create day:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    
-    # Pad day number to 2 digits
-    day_padded=$(printf "%02d" {{day}})
-    day_dir="src/day${day_padded}"
-    
-    if [ -d "$day_dir" ]; then
-        echo "Error: Directory $day_dir already exists"
-        exit 1
-    fi
-    
-    mkdir -p "$day_dir"
-    
-    # Create task1.py
-    echo 'def solve(input_data: str) -> int:' > "$day_dir/task1.py"
-    echo '    # TODO: Implement solution' >> "$day_dir/task1.py"
-    echo '    raise NotImplementedError("Solution not yet implemented")' >> "$day_dir/task1.py"
-    
-    # Create task2.py
-    echo 'def solve(input_data: str) -> int:' > "$day_dir/task2.py"
-    echo '    # TODO: Implement solution' >> "$day_dir/task2.py"
-    echo '    raise NotImplementedError("Solution not yet implemented")' >> "$day_dir/task2.py"
-    
-    # Create empty files
-    touch "$day_dir/task.txt"
-    touch "$day_dir/input.txt"
-    touch "$day_dir/input_test.txt"
-    
-    # Create expected_results.txt with template
-    echo '# Expected results for test input' > "$day_dir/expected_results.txt"
-    echo '# Format: task1=VALUE, task2=VALUE (one per line, or both on same line)' >> "$day_dir/expected_results.txt"
-    echo 'task1=' >> "$day_dir/expected_results.txt"
-    echo 'task2=' >> "$day_dir/expected_results.txt"
-    
-    echo "Created day $day_padded structure at $day_dir"
-    
-    # Update debug defaults
-    just debug {{day}}
-
-# Set debug defaults (e.g., just debug 03 2)
-debug day task="1":
-    @python3 scripts/update_launch_default.py {{day}} {{task}}
+test:
+    @uv run --locked python -m unittest discover -s tests

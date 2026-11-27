@@ -1,0 +1,7 @@
+[[part1]]
+input = "sample.txt"
+expected = "1227775554"
+
+[[part2]]
+input = "sample.txt"
+expected = "4174379265"

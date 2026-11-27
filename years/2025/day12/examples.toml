@@ -1,0 +1,3 @@
+[[part1]]
+input = "sample.txt"
+expected = "2"

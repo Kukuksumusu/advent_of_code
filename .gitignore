@@ -12,3 +12,7 @@ wheels/
 # Caches
 .ruff_cache/
 .mypy_cache/
+# Local Advent of Code inputs, debugger selection, and backups
+/years/*/day*/input.txt
+/.aoc/
+/.env

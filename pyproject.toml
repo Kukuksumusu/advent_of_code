@@ -48,3 +48,11 @@ ignore = [
     "B008",  # Do not perform function calls in argument defaults,
     "D"      # Ignore docstring errors
 ]
+
+[dependency-groups]
+chrome-auth = [
+    "browser-cookie3>=0.20.1",
+]
+dev = [
+    "types-shapely>=2.1,<2.2",
+]

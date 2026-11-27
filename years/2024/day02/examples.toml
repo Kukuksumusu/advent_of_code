@@ -1,0 +1,8 @@
+# Save the example as examples/sample.txt and set the answer for each part.
+[[part1]]
+input = "sample.txt"
+expected = 2
+
+[[part2]]
+input = "sample.txt"
+expected = 4
